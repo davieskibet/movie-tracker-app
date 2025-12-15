@@ -1,11 +1,21 @@
+// tailwind.config.js
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}", // <--- This path ensures all your components are scanned
+    // ... your content paths ...
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        // ⭐️ ADD THIS CUSTOM COLOR BLOCK ⭐️
+        'deep-blue': {
+          DEFAULT: '#090B49', // This allows you to use 'bg-deep-blue'
+          // You can also add shades if needed, but 'DEFAULT' is enough for now.
+        },
+        // You might also want to redefine your teal if it's not the default
+      },
+    },
   },
   plugins: [],
 }
