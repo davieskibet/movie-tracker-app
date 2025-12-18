@@ -1,20 +1,20 @@
-// tailwind.config.js
-
 /** @type {import('tailwindcss').Config} */
 export default {
+  // ⭐️ THIS LINE IS THE MOST IMPORTANT: ⭐️
   content: [
-    // ... your content paths ...
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        // ⭐️ ADD THIS CUSTOM COLOR BLOCK ⭐️
-        'deep-blue': {
-          DEFAULT: '#090B49', // This allows you to use 'bg-deep-blue'
-          // You can also add shades if needed, but 'DEFAULT' is enough for now.
-        },
-        // You might also want to redefine your teal if it's not the default
+        'brand-dark': '#030213', 
+        'deep-blue': '#090B49',
+        'brand-cyan-600': '#0891b2', // Your button color
       },
+      borderRadius: {
+        'brand': '0.625rem', // The 10px radius from your code
+      }
     },
   },
   plugins: [],

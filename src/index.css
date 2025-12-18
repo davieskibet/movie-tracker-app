@@ -1,4 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-/* Rest of your CSS (if any) */
+@import "tailwindcss";
+
+@theme {
+  /* ⭐️ This is where we define your Figma colors in v4 ⭐️ */
+  --color-deep-blue: #090B49;
+  --color-brand-cyan-600: #0891b2;
+  --color-brand-dark: #030213;
+  
+  /* Defining your custom border radius */
+  --radius-brand: 0.625rem;
+}
+
+/* Base styles if needed */
+:root {
+  background-color: var(--color-brand-dark);
+  color: white;
+}
