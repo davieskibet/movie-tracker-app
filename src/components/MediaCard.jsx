@@ -1,82 +1,105 @@
 // src/components/MediaCard.jsx
 import React from 'react';
 import { getStatusLabel, getStatusClass, getNextStatus } from '../utils/statusUtils';
+import { HiOutlinePlus, HiOutlineTrash, HiOutlineArrowPath, HiOutlineBookOpen } from 'react-icons/hi2';
 
-// TMDB base URL for images
-const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+// src/components/MediaCard.jsx
 
 const MediaCard = ({ item, onAdd, isSaved = false, onStatusChange, onDelete }) => {
     
-    // Determine if it's a Movie or TV Show for the title and year
-    const isMovie = item.media_type === 'movie';
-    const title = isMovie ? item.title : item.name;
-    const year = isMovie ? (item.release_date ? item.release_date.substring(0, 4) : 'N/A') : (item.first_air_date ? item.first_air_date.substring(0, 4) : 'N/A');
-    const typeLabel = isMovie ? 'Movie' : 'TV Show';
+    // DEBUG: This will show you exactly what data the card is receiving
+    // console.log("Rendering Card for:", item.title, item);
 
-    // Fallback image if poster is missing
-    const imageUrl = item.poster_path 
-        ? `${TMDB_IMAGE_BASE_URL}${item.poster_path}` 
-        : 'https://via.placeholder.com/500x750?text=No+Image';
+    const getImageUrl = () => {
+    // 1. Log the item to your browser console so we can see what's inside
+    console.log("Card Data for:", item.title, "Path is:", item.posterPath || item.poster_path);
+
+    const path = item.posterPath || item.poster_path || item.imageUrl;
+    
+    // 2. Check if the path is actually there
+    if (!path || path === "null" || path === "undefined") {
+        return 'https://placehold.co/500x750/090b49/ffffff?text=No+Poster';
+    }
+
+    if (item.mediaType === 'book' || item.sourceAPI === 'OpenLibrary') {
+        return `https://covers.openlibrary.org${path}`;
+    }
+
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `https://image.tmdb.org/t/p/w500${cleanPath}`;
+};
+
+    const imageUrl = getImageUrl();
+
+    // 2. DATA NORMALIZATION
+    const title = item.title || item.name;
+    const year = item.year || (item.release_date || item.first_air_date)?.substring(0, 4) || 'N/A';
+    const typeLabel = item.mediaType === 'movie' ? 'Movie' : item.mediaType === 'tv' ? 'TV Show' : 'Book';
 
     return (
-        // Outer container: Must be relative for absolute positioning of badge/delete button
-        <div className="bg-gray-800 rounded-lg overflow-hidden shadow-xl transform hover:scale-[1.03] transition duration-300 relative">
+        <div className="group bg-deep-blue/30 rounded-brand overflow-hidden border border-white/5 hover:border-brand-cyan-600/40 transition-all duration-300 shadow-xl relative flex flex-col h-full">
             
-            {/* ⭐️ FINAL: Status Badge at Top Left ⭐️ */}
+            {/* --- Status Badge & Delete (Saved Only) --- */}
             {isSaved && (
-                <span 
-                    // This combines the badge styling with the status-specific color class
-                    className={`absolute top-2 left-2 z-10 text-xs font-bold px-2 py-0.5 rounded-full ${getStatusClass(item.status)}`}
-                >
-                    {getStatusLabel(item.status)}
-                </span>
-            )}
-            
-            {/* ⭐️ FINAL: Delete Button at Top Right ⭐️ */}
-            {isSaved && (
-                <button
-                    onClick={() => onDelete(item.id)}
-                    className="absolute top-2 right-2 p-1 bg-red-700 hover:bg-red-600 rounded-full text-white text-xs opacity-80 z-10 shadow-lg"
-                    aria-label="Delete item"
-                >
-                    X
-                </button>
+                <>
+                    <div className="absolute top-3 left-3 z-20">
+                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border shadow-sm uppercase tracking-wider ${getStatusClass(item.status)}`}>
+                            {getStatusLabel(item.status)}
+                        </span>
+                    </div>
+                    <button
+                        onClick={() => onDelete(item.id)}
+                        className="absolute top-3 right-3 p-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-full transition-all z-20 backdrop-blur-md border border-red-500/20"
+                    >
+                        <HiOutlineTrash size={16} />
+                    </button>
+                </>
             )}
 
-            {/* 1. Media Image/Poster */}
-            <img 
-                src={imageUrl} 
-                alt={title} 
-                className="w-full h-72 object-cover object-center" 
-                loading="lazy"
-            />
+            {/* --- Image Section --- */}
+            <div className="relative aspect-[2/3] overflow-hidden bg-gray-900">
+                <img 
+    src={imageUrl} 
+    alt={title} 
+    className="w-full h-full object-cover block" // Added 'block' to ensure it takes up space
+    style={{ minHeight: '300px' }} // Force it to have height so you can see it
+    loading="lazy"
+/>
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/90 via-transparent to-transparent opacity-60" />
+            </div>
 
-            <div className="p-4">
+            {/* --- Content Section --- */}
+            <div className="p-4 flex flex-col flex-grow justify-between">
+                <div className="mb-4">
+                    <h3 className="text-sm font-bold truncate text-white group-hover:text-brand-cyan-600 transition-colors" title={title}>
+                        {title}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1">
+                        {item.mediaType === 'book' && <HiOutlineBookOpen className="text-brand-cyan-600" />}
+                        <p className="text-[11px] font-medium text-slate-500 uppercase tracking-widest">
+                            {typeLabel} • {year}
+                        </p>
+                    </div>
+                    {item.author && (
+                        <p className="text-[11px] text-slate-400 italic mt-1 truncate">By {item.author}</p>
+                    )}
+                </div>
                 
-                {/* 2. Title and Year */}
-                <h3 className="text-lg font-bold truncate text-teal-400" title={title}>
-                    {title}
-                </h3>
-                <p className="text-sm text-gray-400 mb-2">
-                    {typeLabel} • {year}
-                </p>
-                
-                {/* 3. Conditional Button Rendering */}
                 {isSaved ? (
-                    // This button cycles the status for SAVED items
                     <button
                         onClick={() => onStatusChange(item.id)}
-                        className="w-full bg-teal-600 hover:bg-teal-700 text-gray-900 font-semibold py-2 rounded-lg transition duration-150 text-sm"
+                        className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-brand-cyan-600 text-slate-300 hover:text-white font-bold py-2.5 rounded-brand transition-all duration-200 border border-white/10 hover:border-brand-cyan-600 text-xs uppercase tracking-widest"
                     >
-                        Cycle Status (Next: {getStatusLabel(getNextStatus(item.status))})
+                        <HiOutlineArrowPath className="text-lg" />
+                        {getStatusLabel(getNextStatus(item.status))}
                     </button>
                 ) : (
-                    // This button adds the item for SEARCH RESULTS
                     <button
                         onClick={() => onAdd(item)}
-                        className="w-full bg-teal-600 hover:bg-teal-700 text-gray-900 font-semibold py-2 rounded-lg transition duration-150 text-sm"
+                        className="w-full flex items-center justify-center gap-2 bg-brand-cyan-600 hover:bg-cyan-500 text-white font-bold py-2.5 rounded-brand transition-all duration-200 shadow-lg shadow-cyan-900/20 text-xs uppercase tracking-widest"
                     >
-                        + Add to List
+                        <HiOutlinePlus className="text-lg" />
+                        Add to List
                     </button>
                 )}
             </div>

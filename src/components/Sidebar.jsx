@@ -1,54 +1,84 @@
 // src/components/Sidebar.jsx
 import React from 'react';
+import { 
+  HiOutlineSquares2X2, 
+  HiOutlineFilm, 
+  HiOutlineTv, 
+  HiOutlineBookOpen, 
+  HiOutlineClock, 
+  HiOutlinePlay, 
+  HiOutlineCheckCircle, 
+  HiOutlineTrash 
+} from 'react-icons/hi2';
 
-// Define the filter categories and their display names
 const FILTERS = [
-    { key: 'all', label: 'All Media' },
-    { key: 'movie', label: 'Movies' },
-    { key: 'tv', label: 'TV Shows' },
-    { key: 'book', label: 'Books' },
-    { key: 'wantToWatch', label: 'Want to Watch' },
-    { key: 'watching', label: 'Watching/Reading' },
-    { key: 'completed', label: 'Completed' },
+    { key: 'all', label: 'All Media', icon: HiOutlineSquares2X2 },
+    { key: 'movie', label: 'Movies', icon: HiOutlineFilm },
+    { key: 'tv', label: 'TV Shows', icon: HiOutlineTv },
+    { key: 'book', label: 'Books', icon: HiOutlineBookOpen },
 ];
 
-// Helper function to dynamically change button color based on selection
-const getButtonClass = (filterKey, currentFilter) => 
-    `w-full text-left py-2 px-4 rounded-lg transition-colors duration-200 text-sm font-semibold mt-1 ${
-        filterKey === currentFilter 
-            ? 'bg-teal-600 text-gray-900 hover:bg-teal-500' 
-            : 'text-gray-300 hover:bg-gray-700'
-    }`;
+const STATUS_FILTERS = [
+    { key: 'wantToWatch', label: 'Want to Watch', icon: HiOutlineClock },
+    { key: 'watching', label: 'Watching/Reading', icon: HiOutlinePlay },
+    { key: 'completed', label: 'Completed', icon: HiOutlineCheckCircle },
+];
 
+const Sidebar = ({ currentFilter, onFilterChange, onClearAll }) => {
+    
+    const getButtonClass = (filterKey) => 
+        `w-full flex items-center gap-3 py-2.5 px-4 rounded-brand transition-all duration-200 text-sm font-medium mt-1 ${
+            filterKey === currentFilter 
+                ? 'bg-brand-cyan-600 text-white shadow-lg shadow-cyan-900/40' 
+                : 'text-slate-400 hover:bg-white/5 hover:text-white'
+        }`;
 
-const Sidebar = ({ totalItems, currentFilter, onFilterChange, onClearAll }) => {
     return (
-        <aside className="w-64 bg-gray-800 p-4 shadow-xl">
-            <h2 className="text-2xl font-bold">Navigation</h2>
-            
-            <p className="mt-4 text-sm text-gray-500">Total Items: {totalItems}</p>
-            
-            <div className="mt-6 space-y-2">
-                {FILTERS.map(filterItem => (
-                    <button
-                        key={filterItem.key}
-                        // Calls the function passed down from Dashboard with the key
-                        onClick={() => onFilterChange(filterItem.key)}
-                        className={getButtonClass(filterItem.key, currentFilter)}
-                    >
-                        {filterItem.label}
-                    </button>
-                ))}
+        <aside className="w-64 bg-brand-dark border-r border-white/10 min-h-[calc(100vh-72px)] p-6 flex flex-col justify-between">
+            <div className="space-y-8">
+                
+                {/* 1. Media Type Filters (No "Navigation" header) */}
+                <div className="space-y-1">
+                    {FILTERS.map(item => (
+                        <button
+                            key={item.key}
+                            onClick={() => onFilterChange(item.key)}
+                            className={getButtonClass(item.key)}
+                        >
+                            <item.icon className="text-xl" />
+                            {item.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* 2. Status Filters */}
+                <div>
+                    <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-3">
+                        Status
+                    </h2>
+                    <div className="space-y-1">
+                        {STATUS_FILTERS.map(item => (
+                            <button
+                                key={item.key}
+                                onClick={() => onFilterChange(item.key)}
+                                className={getButtonClass(item.key)}
+                            >
+                                <item.icon className="text-xl" />
+                                {item.label}
+                            </button>
+                        ))}
+                    </div>
+                </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-gray-700">
-                <p className="text-sm text-gray-500">List Actions</p>
-                {/* Delete All button placeholder - will be implemented later */}
+            {/* 3. List Actions */}
+            <div className="pt-6 border-t border-white/10">
                 <button
-                    className="w-full text-left py-2 px-4 rounded-lg transition-colors duration-200 text-sm font-semibold mt-2 bg-red-800 text-white hover:bg-red-700"
+                    className="w-full flex items-center gap-3 py-2.5 px-4 rounded-brand transition-all text-sm font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-500"
                     onClick={onClearAll}
                 >
-                    ⚠️ Delete All Data
+                    <HiOutlineTrash className="text-xl" />
+                    Delete All Data
                 </button>
             </div>
         </aside>
